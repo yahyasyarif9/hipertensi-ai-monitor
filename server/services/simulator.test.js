@@ -1,4 +1,4 @@
-const { generateReading } = require('./simulator');
+import { generateReading } from './simulator.js';
 
 console.log('--- 5 contoh data ---');
 for (let i = 0; i < 5; i++) console.log(generateReading());

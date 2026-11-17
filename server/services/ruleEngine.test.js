@@ -1,4 +1,4 @@
-import { generateReading } from './simulator.js';
+import { kategoriTensi, perluAlert } from './ruleEngine.js';
 
 console.log(kategoriTensi(110, 70));   // Normal
 console.log(kategoriTensi(125, 75));   // Pra-hipertensi
