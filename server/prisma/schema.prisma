@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  user_id          Int                @id @default(autoincrement())
+  nama             String
+  email            String             @unique
+  password         String             @default("123456")
+  usia             Int
+  tinggi_cm        Float
+  riwayat_penyakit String?
+  gaya_hidup       String?
+
+  health_readings  HealthReading[]
+  body_conditions  BodyCondition[]
+  medications      Medication[]
+  med_logs         MedLog[]
+  side_effects     SideEffect[]
+  adherence_sums   AdherenceSummary[]
+  alerts           Alert[]
+  recommendations  Recommendation[]
+}
+
+model HealthReading {
+  reading_id Int      @id @default(autoincrement())
+  user_id    Int
+  waktu      DateTime @default(now())
+  sistolik   Int
+  diastolik  Int
+  nadi       Int
+  kategori   String
+  sumber     String   @default("simulasi_iot")
+
+  user       User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  alerts     Alert[]
+}
+
+model BodyCondition {
+  condition_id       Int      @id @default(autoincrement())
+  user_id            Int
+  tanggal            DateTime @default(now())
+  berat_kg           Float
+  tidur_jam          Float
+  langkah            Int
+  stres_level        Int      // Skala 1 - 10
+  asupan_garam_level Int      // Skala 1 - 5
+  gejala             String?
+
+  user               User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+}
+
+model Medication {
+  med_id       Int           @id @default(autoincrement())
+  user_id      Int
+  nama_obat    String
+  dosis        String
+
+  user         User          @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  schedules    MedSchedule[]
+  side_effects SideEffect[]
+}
+
+model MedSchedule {
+  schedule_id Int        @id @default(autoincrement())
+  med_id      Int
+  jam_minum   String     // Format "HH:mm", contoh "08:00"
+
+  medication  Medication @relation(fields: [med_id], references: [med_id], onDelete: Cascade)
+  logs        MedLog[]
+}
+
+model MedLog {
+  log_id       Int         @id @default(autoincrement())
+  schedule_id  Int
+  user_id      Int
+  tanggal      DateTime    @default(now())
+  waktu_aktual DateTime?
+  status       String      // "tepat" | "terlambat" | "terlewat"
+
+  schedule     MedSchedule @relation(fields: [schedule_id], references: [schedule_id], onDelete: Cascade)
+  user         User        @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+}
+
+model SideEffect {
+  effect_id  Int        @id @default(autoincrement())
+  med_id     Int
+  user_id    Int
+  waktu      DateTime   @default(now())
+  jenis      String
+  keparahan  String     // "ringan" | "sedang" | "berat"
+  catatan    String?
+
+  medication Medication @relation(fields: [med_id], references: [med_id], onDelete: Cascade)
+  user       User       @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+}
+
+model AdherenceSummary {
+  summary_id       Int      @id @default(autoincrement())
+  user_id          Int
+  periode          String   // "mingguan" | "bulanan" | "total"
+  mulai            DateTime
+  selesai          DateTime
+  persen_kepatuhan Float
+
+  user             User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+}
+
+model Alert {
+  alert_id   Int           @id @default(autoincrement())
+  user_id    Int
+  reading_id Int
+  level      String        // "waspada" | "krisis_hipertensi"
+  pesan      String
+  waktu      DateTime      @default(now())
+
+  user       User          @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  reading    HealthReading @relation(fields: [reading_id], references: [reading_id], onDelete: Cascade)
+}
+
+model Recommendation {
+  rec_id              Int      @id @default(autoincrement())
+  user_id             Int
+  dibuat              DateTime @default(now())
+  sumber              String   // "rule" | "ai" | "hybrid"
+  isi                 String   @db.Text
+  jumlah_data_dipakai Int
+
+  user                User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+}
