@@ -10,4 +10,4 @@ function perluAlert(sistolik, diastolik) {
   return sistolik >= 180 || diastolik >= 120;
 }
 
-module.exports = { kategoriTensi, perluAlert };
+export { kategoriTensi, perluAlert };
