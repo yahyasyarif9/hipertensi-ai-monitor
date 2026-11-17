@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
+import medRoutes from './routes/medRoutes.js'; // <-- 1. TARUH IMPORT DI SINI (PALING ATAS)
 
 dotenv.config();
 
@@ -20,7 +21,7 @@ app.get('/', (req, res) => {
   });
 });
 
-// 2. Endpoint inisialisasi Pasien Demo (agar semua anggota tim langsung punya data uji)
+// 2. Endpoint inisialisasi Pasien Demo
 app.get('/api/demo-patient', async (req, res) => {
   try {
     let user = await prisma.user.findUnique({
@@ -61,8 +62,8 @@ app.get('/api/demo-patient', async (req, res) => {
   }
 });
 
-// Tempat mendaftarkan route dari masing-masing anggota tim nantinya:
-// app.use('/api/meds', medRoutes);       -> Tugasku
+// 2. TARUH ROUTE DI SINI (SETELAH express.json & SEBELUM app.listen)
+app.use('/api/meds', medRoutes);
 // app.use('/api/iot', iotRoutes);        -> Tugas Farida
 // app.use('/api/ai', aiRoutes);          -> Tugas Oryza
 
