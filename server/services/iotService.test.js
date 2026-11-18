@@ -16,6 +16,10 @@ console.log('--- Skenario krisis (harus ada alert) ---');
 const b = await simulateOnce(repoPalsu, 1, { skenario: 'krisis' });
 console.log(b.reading.sistolik + '/' + b.reading.diastolik, b.reading.kategori, '| alert:', b.alert);
 
+console.log('--- Skenario waspada (alert level waspada) ---');
+const w = await simulateOnce(repoPalsu, 1, { skenario: 'waspada' });
+console.log(w.reading.sistolik + '/' + w.reading.diastolik, '| level:', w.alert?.level);
+
 console.log('--- Skenario tidak dikenal (harus error) ---');
 try {
   await simulateOnce(repoPalsu, 1, { skenario: 'ngawur' });

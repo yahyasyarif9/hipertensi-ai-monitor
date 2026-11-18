@@ -10,4 +10,11 @@ function perluAlert(sistolik, diastolik) {
   return sistolik >= 180 || diastolik >= 120;
 }
 
-export { kategoriTensi, perluAlert };
+
+function tingkatAlert(sistolik, diastolik) {
+  if (sistolik >= 180 || diastolik >= 120) return 'krisis_hipertensi';
+  if (sistolik >= 140 || diastolik >= 90) return 'waspada';
+  return null; // Normal / Pra-hipertensi: tidak membuat record Alert
+}
+
+export { kategoriTensi, perluAlert, tingkatAlert };

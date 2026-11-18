@@ -28,14 +28,12 @@ export function createIotRepository(prisma) {
     },
 
     async saveAlert({ userId, readingId, waktu, level, sistolik, diastolik }) {
+      const pesan = level === 'krisis_hipertensi'
+        ? `Tekanan darah ${sistolik}/${diastolik} mmHg masuk kategori krisis hipertensi. Segera cari pertolongan medis.`
+        : `Tekanan darah ${sistolik}/${diastolik} mmHg di atas batas normal. Istirahat dan cek jadwal minum obat.`;
+
       return prisma.alert.create({
-        data: {
-          user_id: userId,
-          reading_id: readingId,
-          level,
-          pesan: `Tekanan darah ${sistolik}/${diastolik} mmHg masuk kategori krisis hipertensi. Segera cari pertolongan medis.`,
-          waktu,
-        },
+        data: { user_id: userId, reading_id: readingId, level, pesan, waktu },
       });
     },
   };

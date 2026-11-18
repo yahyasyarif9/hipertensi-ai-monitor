@@ -1,5 +1,5 @@
 import { generateReading } from './simulator.js';
-import { perluAlert } from './ruleEngine.js';
+import { tingkatAlert } from './ruleEngine.js';
 import { SKENARIO } from './scenarios.js';
 
 // repo = objek penyimpanan (Prisma nanti, memori saat tes)
@@ -29,13 +29,14 @@ export async function simulateOnce(repo, userId, { skenario = 'acak', waktu = ne
     langkah: reading.langkah,
   });
 
+  const level = tingkatAlert(reading.sistolik, reading.diastolik);
   let alert = null;
-  if (perluAlert(reading.sistolik, reading.diastolik)) {
+  if (level) {
     alert = await repo.saveAlert({
       userId,
       readingId: saved.id,
       waktu,
-      level: 'krisis_hipertensi',
+      level,
       sistolik: reading.sistolik,
       diastolik: reading.diastolik,
     });
