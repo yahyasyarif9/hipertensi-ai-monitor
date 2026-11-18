@@ -6,6 +6,16 @@ export function createIotRepository(prisma) {
       return Boolean(user);
     },
 
+     // Hanya menghapus data simulasi milik satu user, tabel lain tidak disentuh
+    async resetSimulasi(userId) {
+      const [a, r, b] = await prisma.$transaction([
+        prisma.alert.deleteMany({ where: { user_id: userId } }),
+        prisma.healthReading.deleteMany({ where: { user_id: userId, sumber: 'simulasi_iot' } }),
+        prisma.bodyCondition.deleteMany({ where: { user_id: userId } }),
+      ]);
+      return { alerts: a.count, readings: r.count, bodies: b.count };
+    },
+
     async saveHealthReading({ userId, waktu, sistolik, diastolik, nadi, kategori }) {
       const r = await prisma.healthReading.create({
         data: { user_id: userId, waktu, sistolik, diastolik, nadi, kategori },
