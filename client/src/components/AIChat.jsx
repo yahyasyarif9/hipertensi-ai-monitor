@@ -16,7 +16,7 @@ function AIChat () {
         setResponse('');
 
         try {
-            const result = await sendMessage(prompt, user_id);
+            const result = await sendMessage(prompt);
             setResponse(result);
         } catch (err){
             setError(err.message);
