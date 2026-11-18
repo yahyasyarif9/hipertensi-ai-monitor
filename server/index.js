@@ -1,3 +1,4 @@
+import aiRoutes from './src/routes/ai.routes.js';
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -11,6 +12,8 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
+
+app.use('/api/ai', aiRoutes);
 
 // 1. Cek status server
 app.get('/', (req, res) => {
