@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
+import { createIotRepository } from './repositories/iotRepository.js';
+import iotRoutes from './routes/iot.js';
 
 dotenv.config();
 
@@ -63,7 +65,7 @@ app.get('/api/demo-patient', async (req, res) => {
 
 // Tempat mendaftarkan route dari masing-masing anggota tim nantinya:
 // app.use('/api/meds', medRoutes);       -> Tugasku
-// app.use('/api/iot', iotRoutes);        -> Tugas Farida
+app.use('/api/iot', iotRoutes(createIotRepository(prisma)));    // -> Tugas Farida
 // app.use('/api/ai', aiRoutes);          -> Tugas Oryza
 
 app.listen(PORT, () => {
