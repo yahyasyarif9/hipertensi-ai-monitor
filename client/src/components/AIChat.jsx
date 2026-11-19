@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { sendMessage } from '../services/ai.service';
 
 function AIChat () {
+    const user_id = 1;
+    
     const [prompt, setPrompt] = useState('');
     const [response, setResponse] = useState('');
     const [loading, setLoading] = useState(false);

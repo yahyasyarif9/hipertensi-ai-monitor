@@ -67,7 +67,7 @@ export async function getRecommendation(req, res) {
         const patientContext = await buildPatientContext(user_id);
 
         //generate rekomendasi
-        const result = generateRecommendation(patientContext);
+        const result = await generateRecommendation(patientContext);
 
         //simpan rekomendasi ke database
         const savedRecommendation = await prisma.recommendation.create({

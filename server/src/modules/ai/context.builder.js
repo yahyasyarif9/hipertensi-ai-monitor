@@ -32,7 +32,7 @@ export async function buildPatientContext(userId) {
                 take: 30
             }, 
             alerts: {
-                orderBy: { waktu: 'decs' }, 
+                orderBy: { waktu: 'desc' }, 
                 take: 30
             }
         }
@@ -46,10 +46,14 @@ export async function buildPatientContext(userId) {
     const conditions = user.body_conditions; 
 
     const average = (values) => {
-        if (values.length === 0) return null; 
+        const validValues = values.filter(
+            value => value !== null && value !== undefined
+        );
+
+        if (validValues.length === 0) return null; 
 
         return Number (
-            (values.reduce((total, value) => total + value, 0) / values.length).toFixed(2)
+            (validValues.reduce((total, value) => total + value, 0) / validValues.length).toFixed(2)
         );
     };
 
@@ -65,9 +69,9 @@ export async function buildPatientContext(userId) {
         rata_nadi: average(
             readings.map(item => item.nadi)
         ),
-        tekanan_tertinggi: readings.length > 0
-        ? Math.max(...readings.map(item => item.sistolik))
-        : null
+        sistolik_tertinggi: readings.length > 0
+            ? Math.max(...readings.map(item => item.sistolik))
+            : null
     };
 
     const conditionSummary = {
@@ -100,7 +104,7 @@ export async function buildPatientContext(userId) {
         riwayat_tekanan_darah: user.health_readings, 
         riwayat_kondisi: user.body_conditions,
         obat: user.medications,
-        riwayat_konsumsi_obat: user.medications, 
+        riwayat_konsumsi_obat: user.med_logs, 
         riwayat_efek_samping: user.side_effects, 
         kepatuhan_obat: user.adherence_sums,
         riwayat_alert: user.alerts

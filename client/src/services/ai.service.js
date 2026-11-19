@@ -21,3 +21,22 @@ export async function sendMessage(prompt, user_id) {
 
     return result.data.response;
 }
+
+export async function getRecommendation(user_id) {
+    const response = await fetch(`${API_URL}/recommend`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user_id }),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+        throw new Error(result.message || 'Gagal mengambil rekomendasi.');
+    }
+
+    return result.data.recommendation;
+
+}
