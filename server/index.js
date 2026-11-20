@@ -1,8 +1,9 @@
-import aiRoutes from './src/routes/ai.routes.js';
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
+
+import aiRoutes from './src/routes/ai.routes.js';
 import { createIotRepository } from './repositories/iotRepository.js';
 import iotRoutes from './routes/iot.js';
 import medRoutes from './routes/medRoutes.js';
@@ -26,7 +27,7 @@ app.get('/', (req, res) => {
   });
 });
 
-// 2. Endpoint inisialisasi Pasien Demo (agar semua anggota tim langsung punya data uji)
+// 2. Endpoint inisialisasi Pasien Demo
 app.get('/api/demo-patient', async (req, res) => {
   try {
     let user = await prisma.user.findUnique({
@@ -67,7 +68,7 @@ app.get('/api/demo-patient', async (req, res) => {
   }
 });
 
-// regist route dari masing-masing fitur
+// Registrasi route masing-masing fitur
 app.use('/api/meds', medRoutes);
 app.use('/api/iot', iotRoutes(createIotRepository(prisma)));
 

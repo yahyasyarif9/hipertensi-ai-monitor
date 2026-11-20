@@ -5,7 +5,7 @@ import prisma from "../config/prisma.js";
 
 export async function chatWithAI(req, res) {
     try {
-        const { prompt, user_id } = req.body;
+        const { prompt } = req.body;
 
         if (!prompt || typeof prompt !== 'string') {
             return res.status(400).json({
@@ -14,40 +14,20 @@ export async function chatWithAI(req, res) {
             });
         }
 
-        if (!user_id) {
-            return res.status(400).json({
-                success: false,
-                message: 'User ID wajib diisi'
-            });
-        }
-        //Ambil konteks pasien
-        const patientContext = await buildPatientContext(user_id);
-
-        //menggabungkan konteks pasien dengan pertanyaan
-        const fullPrompt = `
-            Kamu adalah AI Assistant untuk aplikasi pemantauan hipertensi. 
-            
-            Berikut data pasien: 
-            ${JSON.stringify(patientContext, null, 2)}
-            
-            Pertanyaan pasien: 
-            ${prompt}
-            
-            Berikan penjelasan berdasarkan data yang tersedia. 
-            Jangan mengarang data atau memberikan diagnosis pasti`;
-
-        const response = await generateAIResponse(fullPrompt);
+        const response = await generateAIResponse(prompt);
 
         return res.status(200).json({
             success: true,
-            data: { response },
+            data: {
+                response,
+            },
         });
     } catch (error) {
-        console.error('AI Controller Error:', error);
+        console.error('AI Controller Error:', error.message);
 
         return res.status(503).json({
             success: false,
-            message: 'Gagal memproses permintaan AI'
+            message: 'Layanan AI sedang tidak tersedia. Silakan coba lagi.',
         });
     }
 }
@@ -63,13 +43,9 @@ export async function getRecommendation(req, res) {
             });
         }
 
-        //ambil konteks pasien
         const patientContext = await buildPatientContext(user_id);
-
-        //generate rekomendasi
         const result = await generateRecommendation(patientContext);
 
-        //simpan rekomendasi ke database
         const savedRecommendation = await prisma.recommendation.create({
             data: {
                 user_id: Number(user_id),
