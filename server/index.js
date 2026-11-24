@@ -7,6 +7,7 @@ import aiRoutes from './src/routes/ai.routes.js';
 import { createIotRepository } from './repositories/iotRepository.js';
 import iotRoutes from './routes/iot.js';
 import medRoutes from './routes/medRoutes.js';
+import readingRoutes from './routes/readingRoutes.js';
 
 dotenv.config();
 
@@ -71,6 +72,7 @@ app.get('/api/demo-patient', async (req, res) => {
 // Registrasi route masing-masing fitur
 app.use('/api/meds', medRoutes);
 app.use('/api/iot', iotRoutes(createIotRepository(prisma)));
+app.use('/api', readingRoutes); // Endpoint: /api/readings, /api/conditions, /api/alerts
 
 app.listen(PORT, () => {
   console.log(`Server berjalan di http://localhost:${PORT}`);
