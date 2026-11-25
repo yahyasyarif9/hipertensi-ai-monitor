@@ -1,54 +1,66 @@
+
 export function checkDataMaturity(readings) {
     if (!readings || readings.length === 0) {
         return {
-            fase: 'belum_ada_data', 
+            fase: "umum",
             jumlah_data: 0,
-            rekomendasi: 'Belum cukup data pasien'
+            rentang_hari: 0,
+            rekomendasi: "Belum cukup data pasien"
         };
     }
 
-    const dates = readings.map(item => 
-        new Date(item.waktu).getTime()
+    const validDates = readings
+        .map(item => new Date(item.waktu))
+        .filter(date => !isNaN(date.getTime()));
+
+    if (validDates.length === 0) {
+        return {
+            fase: "umum",
+            jumlah_data: 0,
+            rentang_hari: 0,
+            rekomendasi: "Belum cukup data pasien"
+        };
+    }
+
+    const timestamps = validDates.map(date =>
+        Date.UTC(
+            date.getUTCFullYear(),
+            date.getUTCMonth(),
+            date.getUTCDate()
+        )
     );
 
-    const firstDate = Math.min(...dates); 
-    const latestDate = Math.max(...dates);
+    const firstDate = Math.min(...timestamps);
+    const latestDate = Math.max(...timestamps);
 
-    const totalDays = Math.floor(
-        (latestDate - firstDate) / (1000 * 60 * 60 * 24)
-    );
+    // Menghitung jumlah hari kalender termasuk tanggal awal
+    const totalDays =
+        Math.floor((latestDate - firstDate) / 86400000) + 1;
 
-    if (totalDays < 7) {
+    const jumlahData = validDates.length;
+
+    if (totalDays < 14) {
         return {
-            fase: 'umum',
-            jumlah_data: readings.length,
+            fase: "umum",
+            jumlah_data: jumlahData,
             rentang_hari: totalDays,
-            rekomendasi: 'Rekomendasi umum'
+            rekomendasi: "Rekomendasi umum"
         };
     }
 
-    if (totalDays >= 14 && totalDays <= 28) {
+    if (totalDays <= 30) {
         return {
-            fase: 'tren',
-            jumlah_data: readings.length,
+            fase: "tren",
+            jumlah_data: jumlahData,
             rentang_hari: totalDays,
-            rekomendasi: 'Rekomendasi berdasarkan tren'
-        };
-    }
-
-    if (totalDays > 30) {
-        return {
-            fase: 'personal',
-            jumlah_data: readings.length,
-            rentang_hari: totalDays,
-            rekomendasi: 'Rekomendasi personal'
+            rekomendasi: "Rekomendasi berdasarkan tren"
         };
     }
 
     return {
-        fase: 'transisi',
-        jumlah_data: readings.length,
+        fase: "personal",
+        jumlah_data: jumlahData,
         rentang_hari: totalDays,
-        rekomendasi: 'Data masih dalam tahap pengumpulan'
+        rekomendasi: "Rekomendasi personal"
     };
 }

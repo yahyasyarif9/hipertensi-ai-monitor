@@ -130,6 +130,7 @@ model Recommendation {
   sumber              String   // "rule" | "ai" | "hybrid"
   isi                 String   @db.Text
   jumlah_data_dipakai Int
+  fase_data           String?
 
   user                User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
 }
