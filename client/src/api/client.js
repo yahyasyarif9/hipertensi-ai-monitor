@@ -13,7 +13,7 @@ async function req(path, options = {}) {
   });
   if (!res.ok) {
     let msg = `Permintaan gagal (${res.status})`;
-    try { msg = (await res.json()).message || msg; } catch { /* abaikan */ }
+    try { const j = await res.json(); msg = j.message || j.error || msg; } catch { /* abaikan */ }
     throw new Error(msg);
   }
   return res.status === 204 ? null : res.json();
@@ -35,4 +35,6 @@ export const api = {
   logDose: (schedule_id) => pick(() => mock.logDose(schedule_id), () => req('/meds/log', { method: 'POST', body: { schedule_id, waktu_aktual: new Date().toISOString() } })),
   sideEffects: () => pick(() => mock.sideEffects(), () => req(`/side-effects?${q()}`)),
   addSideEffect: (body) => pick(() => mock.addSideEffect(body), () => req('/side-effects', { method: 'POST', body: { user_id: USER_ID, ...body } })),
+  simulate: (skenario = 'acak') => req('/iot/simulate', { method: 'POST', body: { userId: USER_ID, skenario } }),
+  seed: (days = 7, pattern = 'fluktuatif') => req('/iot/seed', { method: 'POST', body: { userId: USER_ID, days, pattern } }),
 };

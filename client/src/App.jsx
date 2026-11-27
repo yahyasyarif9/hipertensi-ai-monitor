@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import Medications from './pages/Medications';
 import AIAssistant from './pages/AIAssistant';
 import IoTSimulator from './pages/IoTSimulator';
+import Simulator from './pages/Simulator';
 import Placeholder from './pages/Placeholder';
 import './App.css';
 
@@ -16,6 +17,7 @@ export default function App() {
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="obat" element={<Medications />} />
         <Route path="simulator" element={<IoTSimulator />} />
+        <Route path="simulator-ui" element={<Simulator />} />
         <Route path="asisten" element={<AIAssistant />} />
         <Route path="*" element={<Placeholder title="Halaman tidak ditemukan" owner="tidak ada" note="Periksa alamat atau pilih menu di samping." />} />
       </Route>
