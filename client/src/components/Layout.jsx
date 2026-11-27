@@ -1,5 +1,6 @@
-import { NavLink, Outlet, Link } from 'react-router-dom';
-import { Activity, Bot, LayoutDashboard, Pill, Home, User, ShoppingCart, Heart } from 'lucide-react';
+import { NavLink, Outlet, Link, useNavigate } from 'react-router-dom';
+import { Activity, Bot, LayoutDashboard, Pill, Home, User, LogOut, Heart, LogIn } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 const NAV = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -9,6 +10,14 @@ const NAV = [
 ];
 
 export default function Layout() {
+  const { user, isLoggedIn, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
+
   const link = ({ isActive }) =>
     `flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
       isActive ? 'bg-brand text-white shadow-soft' : 'text-ink hover:bg-brand-soft hover:text-brand'
@@ -29,18 +38,35 @@ export default function Layout() {
             </div>
           </Link>
           
-          <div className="hidden items-center gap-4 md:flex">
-            <button className="btn-ghost text-sm">
-              <User className="h-4 w-4" />
-              Sign In / Account
-            </button>
-            <button className="btn-primary relative">
-              <ShoppingCart className="h-4 w-4" />
-              Cart
-              <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-alarm text-xs text-white">
-                0
-              </span>
-            </button>
+          <div className="hidden items-center gap-3 md:flex">
+            {isLoggedIn ? (
+              <>
+                <div className="flex items-center gap-2 rounded-xl bg-brand-soft px-4 py-2">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand text-white text-sm font-bold">
+                    {user.nama?.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="text-left">
+                    <p className="text-sm font-semibold text-ink">{user.nama}</p>
+                    <p className="text-xs text-muted">{user.email}</p>
+                  </div>
+                </div>
+                <button onClick={handleLogout} className="btn-ghost text-sm text-alarm hover:bg-alarm-soft hover:text-alarm">
+                  <LogOut className="h-4 w-4" />
+                  Keluar
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="btn-ghost text-sm">
+                  <LogIn className="h-4 w-4" />
+                  Masuk
+                </Link>
+                <Link to="/register" className="btn-primary text-sm">
+                  <User className="h-4 w-4" />
+                  Daftar
+                </Link>
+              </>
+            )}
           </div>
         </div>
         

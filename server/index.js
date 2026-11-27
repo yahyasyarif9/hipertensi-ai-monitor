@@ -8,6 +8,7 @@ import { createIotRepository } from './repositories/iotRepository.js';
 import iotRoutes from './routes/iot.js';
 import medRoutes from './routes/medRoutes.js';
 import readingRoutes from './routes/readingRoutes.js';
+import authRoutes from './routes/authRoutes.js';
 
 dotenv.config();
 
@@ -70,6 +71,7 @@ app.get('/api/demo-patient', async (req, res) => {
 });
 
 // Registrasi route masing-masing fitur
+app.use('/api/auth', authRoutes);      // /api/auth/login, /api/auth/register, /api/auth/me
 app.use('/api/meds', medRoutes);       // /api/meds, /api/meds/today, /api/meds/logs, /api/meds/adherence, /api/meds/log
 app.use('/api', medRoutes);            // /api/side-effects (GET & POST)
 app.use('/api/iot', iotRoutes(createIotRepository(prisma)));
