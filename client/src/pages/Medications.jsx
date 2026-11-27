@@ -20,9 +20,17 @@ export default function Medications() {
 
   const run = async (key, fn, okMsg) => {
     setBusy(key); setNotice(null);
-    try { await fn(); setNotice({ ok: true, text: okMsg }); await reload(); }
-    catch (e) { setNotice({ ok: false, text: e.message }); }
-    finally { setBusy(null); }
+    try {
+      await fn();
+      setNotice({ ok: true, text: okMsg });
+      await reload();
+      return true;
+    } catch (e) {
+      setNotice({ ok: false, text: e.message });
+      return false;
+    } finally {
+      setBusy(null);
+    }
   };
 
   if (loading && !data) return <Loading />;
@@ -204,10 +212,10 @@ export default function Medications() {
 function AddMedForm({ onSubmit, busy }) {
   const [f, setF] = useState({ nama_obat: '', dosis: '', jam: ['08:00'] });
   const setJam = (i, v) => setF({ ...f, jam: f.jam.map((j, k) => (k === i ? v : j)) });
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
-    onSubmit({ nama_obat: f.nama_obat.trim(), dosis: f.dosis.trim(), jam_minum: f.jam });
-    setF({ nama_obat: '', dosis: '', jam: ['08:00'] });
+    const ok = await onSubmit({ nama_obat: f.nama_obat.trim(), dosis: f.dosis.trim(), jam_minum: f.jam });
+    if (ok) setF({ nama_obat: '', dosis: '', jam: ['08:00'] });
   };
   
   return (
@@ -293,10 +301,10 @@ function AddMedForm({ onSubmit, busy }) {
 function SideEffectForm({ meds, onSubmit, busy }) {
   const empty = { med_id: '', jenis: '', keparahan: 'ringan', catatan: '' };
   const [f, setF] = useState(empty);
-  const submit = (e) => { 
+  const submit = async (e) => { 
     e.preventDefault(); 
-    onSubmit({ ...f, med_id: Number(f.med_id || meds[0]?.med_id) }); 
-    setF(empty); 
+    const ok = await onSubmit({ ...f, med_id: Number(f.med_id || meds[0]?.med_id) }); 
+    if (ok) setF(empty); 
   };
   
   return (

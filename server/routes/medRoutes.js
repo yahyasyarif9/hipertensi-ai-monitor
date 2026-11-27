@@ -125,14 +125,16 @@ router.get('/today', async (req, res) => {
       logBySchedule[log.schedule_id] = log;
     }
 
-    const result = schedules.map((s) => ({
-      schedule_id: s.schedule_id,
-      med_id: s.medication.med_id,
-      nama_obat: s.medication.nama_obat,
-      dosis: s.medication.dosis,
-      jam_minum: s.jam_minum,
-      status: logBySchedule[s.schedule_id]?.status || null,
-    }));
+    const result = schedules
+      .map((s) => ({
+        schedule_id: s.schedule_id,
+        med_id: s.medication.med_id,
+        nama_obat: s.medication.nama_obat,
+        dosis: s.medication.dosis,
+        jam_minum: s.jam_minum,
+        status: logBySchedule[s.schedule_id]?.status || null,
+      }))
+      .sort((a, b) => a.jam_minum.localeCompare(b.jam_minum));
 
     res.json(result);
   } catch (error) {
@@ -230,16 +232,25 @@ router.get('/', async (req, res) => {
 // ─────────────────────────────────────────────────────────────
 router.post('/', async (req, res) => {
   try {
-    const { user_id, userId, nama_obat, dosis, daftar_jam } = req.body;
+    const { user_id, userId, nama_obat, dosis, daftar_jam, jam_minum } = req.body;
     const uid = Number(user_id || userId);
+    const rawJadwal = daftar_jam ?? jam_minum ?? [];
+    const jadwalList = Array.isArray(rawJadwal) ? rawJadwal : [rawJadwal];
+
+    if (!uid || !nama_obat?.trim() || !dosis?.trim() || jadwalList.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'user_id, nama_obat, dosis, dan jam minum wajib diisi',
+      });
+    }
 
     const newMed = await prisma.medication.create({
       data: {
         user_id: uid,
-        nama_obat,
-        dosis,
+        nama_obat: nama_obat.trim(),
+        dosis: dosis.trim(),
         schedules: {
-          create: daftar_jam.map((jam) => ({ jam_minum: jam })),
+          create: jadwalList.filter(Boolean).map((jam) => ({ jam_minum: String(jam) })),
         },
       },
       include: { schedules: true },
@@ -248,7 +259,7 @@ router.post('/', async (req, res) => {
     res.json({ success: true, data: newMed });
   } catch (error) {
     console.error('Error adding medication:', error);
-    res.status(500).json({ success: false, error: error.message });
+    res.status(500).json({ success: false, message: error.message, error: error.message });
   }
 });
 
@@ -343,7 +354,12 @@ router.get('/side-effects', async (req, res) => {
       take: 20,
     });
 
-    res.json(sideEffects);
+    res.json(
+      sideEffects.map((e) => ({
+        ...e,
+        nama_obat: e.medication?.nama_obat || '',
+      }))
+    );
   } catch (error) {
     console.error('Error fetching side effects:', error);
     res.status(500).json({ success: false, error: error.message });
