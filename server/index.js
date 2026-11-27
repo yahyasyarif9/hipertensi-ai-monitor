@@ -70,9 +70,10 @@ app.get('/api/demo-patient', async (req, res) => {
 });
 
 // Registrasi route masing-masing fitur
-app.use('/api/meds', medRoutes);
+app.use('/api/meds', medRoutes);       // /api/meds, /api/meds/today, /api/meds/logs, /api/meds/adherence, /api/meds/log
+app.use('/api', medRoutes);            // /api/side-effects (GET & POST)
 app.use('/api/iot', iotRoutes(createIotRepository(prisma)));
-app.use('/api', readingRoutes); // Endpoint: /api/readings, /api/conditions, /api/alerts
+app.use('/api', readingRoutes);        // /api/readings, /api/conditions, /api/alerts
 
 app.listen(PORT, () => {
   console.log(`Server berjalan di http://localhost:${PORT}`);
