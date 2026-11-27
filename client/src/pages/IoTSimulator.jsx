@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { Activity, Zap, Calendar, Database } from 'lucide-react';
+import { api } from '../api/client';
 
 export default function IoTSimulator() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
-
-  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
   // Fungsi untuk simulasi single reading
   const handleSimulate = async (skenario = 'acak') => {
@@ -15,18 +14,8 @@ export default function IoTSimulator() {
     setResult(null);
 
     try {
-      const response = await fetch(
-        `${API_BASE}/api/iot/simulate?user_id=1&skenario=${skenario}`,
-        { method: 'POST' }
-      );
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Simulasi gagal');
-      }
-      
-      const data = await response.json();
-      setResult({ type: 'simulate', data });
+      const res = await api.simulate(skenario);
+      setResult({ type: 'simulate', data: res.data });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -41,18 +30,8 @@ export default function IoTSimulator() {
     setResult(null);
 
     try {
-      const response = await fetch(
-        `${API_BASE}/api/iot/seed?user_id=1&days=${days}&pattern=${pattern}`,
-        { method: 'POST' }
-      );
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Seeder gagal');
-      }
-      
-      const data = await response.json();
-      setResult({ type: 'seed', data });
+      const res = await api.seed(days, pattern);
+      setResult({ type: 'seed', data: res.data });
     } catch (err) {
       setError(err.message);
     } finally {

@@ -9,8 +9,8 @@ export default function iotRoutes(repo) {
 
   router.post('/simulate', async (req, res) => {
     try {
-      const userId = Number(req.body?.userId);
-      const skenario = req.body?.skenario || 'acak';
+      const userId = Number(req.body?.userId ?? req.body?.user_id ?? req.query?.userId ?? req.query?.user_id);
+      const skenario = req.body?.skenario || req.query?.skenario || 'acak';
 
       if (!Number.isInteger(userId) || userId < 1) {
         return res.status(400).json({ success: false, error: 'userId wajib berupa angka' });
@@ -29,12 +29,12 @@ export default function iotRoutes(repo) {
     }
   });
 
-    router.post('/seed', async (req, res) => {
+  router.post('/seed', async (req, res) => {
     try {
-      const userId = Number(req.body?.userId);
-      const days = Number(req.body?.days ?? 7);
-      const pattern = req.body?.pattern || 'fluktuatif';
-      const reset = req.body?.reset !== false;
+      const userId = Number(req.body?.userId ?? req.body?.user_id ?? req.query?.userId ?? req.query?.user_id);
+      const days = Number(req.body?.days ?? req.query?.days ?? 7);
+      const pattern = req.body?.pattern || req.query?.pattern || 'fluktuatif';
+      const reset = req.body?.reset !== false && req.query?.reset !== 'false';
 
       if (!Number.isInteger(userId) || userId < 1) {
         return res.status(400).json({ success: false, error: 'userId wajib berupa angka' });
