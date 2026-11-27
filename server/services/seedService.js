@@ -19,6 +19,11 @@ export async function seedHistory(repo, userId, { days = 7, pattern = 'fluktuati
   if (!HARI_VALID.includes(days)) throw new Error('days harus 7, 14, atau 30');
   if (!POLA_VALID.includes(pattern)) throw new Error(`Pola tidak dikenal: ${pattern}`);
 
+  const ctx = repo.getPatientContext ? await repo.getPatientContext(userId) : null;
+  const baseBerat = ctx?.latestCondition?.berat_kg ?? undefined;
+  const usiaRisk = Number(ctx?.user?.usia) >= 55 ? 4 : 0;
+  const kepatuhanAktual = ctx?.adherence?.persenMingguan;
+
   const dihapus = reset ? await repo.resetSimulasi(userId) : { readings: 0, bodies: 0, alerts: 0 };
 
   const hasil = { readings: 0, bodies: 0, alerts: 0, waspada: 0, krisis: 0 };
@@ -32,8 +37,16 @@ export async function seedHistory(repo, userId, { days = 7, pattern = 'fluktuati
       waktu.setDate(waktu.getDate() - (days - hariKe)); // days hari lalu sampai kemarin
       waktu.setHours(jam, 0, 0, 0);
 
-      const patuhObat = Math.random() > PELUANG_TIDAK_PATUH[pattern];
-      const reading = generateReading({ baseSys: 135 + sys, baseDia: 85 + dia, patuhObat });
+      const peluangTidakPatuh = kepatuhanAktual != null
+        ? Math.max(0.05, Math.min(0.6, (100 - kepatuhanAktual) / 100))
+        : PELUANG_TIDAK_PATUH[pattern];
+      const patuhObat = Math.random() > peluangTidakPatuh;
+      const reading = generateReading({
+        baseSys: 135 + usiaRisk + sys,
+        baseDia: 85 + Math.round(usiaRisk / 2) + dia,
+        beratKg: baseBerat,
+        patuhObat,
+      });
 
       const saved = await repo.saveHealthReading({
         userId, waktu,

@@ -118,6 +118,54 @@ router.get('/conditions', async (req, res) => {
 });
 
 /**
+ * POST /api/conditions
+ * Simpan kondisi tubuh harian pasien (tidur, stres, asupan garam, berat badan, langkah, gejala)
+ */
+router.post('/conditions', async (req, res) => {
+  try {
+    const {
+      user_id,
+      userId,
+      berat_kg,
+      tidur_jam,
+      langkah,
+      stres_level,
+      asupan_garam_level,
+      gejala,
+    } = req.body;
+
+    const uid = Number(user_id || userId);
+    if (!uid) {
+      return res.status(400).json({
+        success: false,
+        message: 'Parameter user_id diperlukan',
+      });
+    }
+
+    const condition = await prisma.bodyCondition.create({
+      data: {
+        user_id: uid,
+        berat_kg: Number(berat_kg ?? 70),
+        tidur_jam: Number(tidur_jam ?? 7),
+        langkah: parseInt(langkah ?? 5000),
+        stres_level: Math.min(10, Math.max(1, parseInt(stres_level ?? 4))),
+        asupan_garam_level: Math.min(5, Math.max(1, parseInt(asupan_garam_level ?? 2))),
+        gejala: gejala?.trim() || null,
+      },
+    });
+
+    res.status(201).json({ success: true, data: condition });
+  } catch (error) {
+    console.error('Error saving condition:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Gagal menyimpan kondisi kesehatan',
+      error: error.message,
+    });
+  }
+});
+
+/**
  * GET /api/alerts
  * Mengambil alert/peringatan berdasarkan tekanan darah
  * Query params:

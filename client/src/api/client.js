@@ -27,6 +27,7 @@ const q = (extra = {}) => new URLSearchParams({ user_id: getUserId(), ...extra }
 export const api = {
   readings: (days = 30) => pick(() => mock.readings(days), () => req(`/readings?${q({ days })}`)),
   conditions: (days = 30) => pick(() => mock.conditions(days), () => req(`/conditions?${q({ days })}`)),
+  saveCondition: (body) => req('/conditions', { method: 'POST', body: { user_id: getUserId(), ...body } }),
   alerts: () => pick(() => mock.alerts(), () => req(`/alerts?${q()}`)),
   adherence: () => pick(() => mock.adherence(), () => req(`/meds/adherence?${q()}`)),
   medLogs: (days = 30) => pick(() => mock.medLogs(days), () => req(`/meds/logs?${q({ days })}`)),
@@ -37,6 +38,7 @@ export const api = {
   logDose: (schedule_id) => pick(() => mock.logDose(schedule_id), () => req('/meds/log', { method: 'POST', body: { user_id: getUserId(), schedule_id, waktu_aktual: new Date().toISOString() } })),
   sideEffects: () => pick(() => mock.sideEffects(), () => req(`/side-effects?${q()}`)),
   addSideEffect: (body) => pick(() => mock.addSideEffect(body), () => req('/side-effects', { method: 'POST', body: { user_id: getUserId(), ...body } })),
-  simulate: (skenario = 'acak') => req('/iot/simulate', { method: 'POST', body: { userId: getUserId(), skenario } }),
+  patientStatus: () => req(`/iot/patient-status?${q()}`),
+  simulate: (skenario = 'acak', condition) => req('/iot/simulate', { method: 'POST', body: { userId: getUserId(), skenario, condition } }),
   seed: (days = 7, pattern = 'fluktuatif') => req('/iot/seed', { method: 'POST', body: { userId: getUserId(), days, pattern } }),
 };
